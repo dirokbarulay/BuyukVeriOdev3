@@ -1,0 +1,197 @@
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+test_data = pd.read_csv('test-data.csv')
+train_data = pd.read_csv('train-data.csv')
+
+train_data.head()
+      Unnamed: 0	Name	   Location	   Year	Kilometers_Driven	Fuel_Type	Transmission	Owner_Type	Mileage	Engine	Power	 Seats	New_Price	Price
+0            	0	  Maruti 	   Mumbai	   2010	            72000     	CNG	      Manual	     First	  26.6 	   998 	58.16 	 5.0	      NaN	 1.75
+                  Wagon R                                                                           km/kg     CC    bhp
+                  LXI CNG
+1	            1	  Hyundai 	  Pune	   2015	            41000	    Diesel	    Manual	      First	  19.67    1582  126.2	 5.0	      NaN	 12.50
+                  Creta 1.6                                                                          kmpl      CC   bhp
+                  CRDi SX 
+                  Option
+2	            2	  Honda 	   Chennai    2011	             46000	  Petrol	    Manual	      First	   18.2   1199  88.7   	5.0	  8.61 Lakh	 4.50
+                  Jazz V                                                                               kmpl     CC   bhp
+3	            3	  Maruti     Chennai    2012            	 87000	  Diesel	    Manual	      First	   20.77  1248  88.76	   7.0	      NaN	 6.00
+                  Ertiga VDI                                                                            kmpl    CC    bhp
+4	            4 	Audi A4  	 Coimbatore	2013	              40670	   Diesel	   Automatic	    Second	 15.2    1968  140.8    5.0	      NaN	 17.74
+                  New 2.0 TDI                                                                           kmpl	  CC    bhp
+                  Multitronic
+                  
+
+degisken_turu = train_data.copy()
+print(degisken_turu.dtypes)
+Unnamed: 0             int64
+Name                  object
+Location              object
+Year                   int64
+Kilometers_Driven      int64
+Fuel_Type             object
+Transmission          object
+Owner_Type            object
+Mileage               object
+Engine                object
+Power                 object
+Seats                float64
+New_Price             object
+Price                float64
+dtype: object
+
+
+print(degisken_turu.shape)
+(6019, 14)
+
+
+nan_iceren = [col for col in degisken_turu.columns if degisken_turu[col].isnull().any()]
+print(nan_iceren)
+['Mileage', 'Engine', 'Power', 'Seats', 'New_Price']
+
+
+degisken_turu.describe()
+	     Unnamed: 0	  	     Year  Kilometers_Driven	      Seats	     Price
+count	6019.000000	  6019.000000	      6.019000e+03	5977.000000	6019.000000
+mean	3009.000000  	2013.358199       5.873838e+04	   5.278735    9.479468
+std	  1737.679967	     3.269742	      9.126884e+04	   0.808840	  11.187917
+min	     0.000000	  1998.000000	      1.710000e+02	   0.000000	   0.440000
+25%	  1504.500000	  2011.000000     	3.400000e+04	   5.000000	   3.500000
+50% 	3009.000000	  2014.000000     	5.300000e+04   	 5.000000	   5.640000
+75%	  4513.500000	  2016.000000     	7.300000e+04	   5.000000	   9.950000
+max	  6018.000000	  2019.000000     	6.500000e+06	  10.000000	 160.000000
+
+
+sayisal=[col for col in degisken_turu.columns if degisken_turu[col].dtypes !='O']
+kategori=[col for col in degisken_turu.columns if col not in sayisal]
+print((kategori), "\n")
+print(sayisal)
+['Name', 'Location', 'Fuel_Type', 'Transmission', 'Owner_Type', 'Mileage', 'Engine', 'Power', 'New_Price'] 
+['Unnamed: 0', 'Year', 'Kilometers_Driven', 'Seats', 'Price']
+
+
+plt.figure(figsize=(10,6))
+sns.heatmap(degisken_turu[sayisal].corr().abs(),annot=True)
+#görseli buraya yükleyemedim.
+
+
+for col in sayisal:
+    sns.regplot(degisken_turu[col],degisken_turu['Price'])
+    plt.show()
+#görseli buraya yükleyemedim.
+
+
+degisken_turu = degisken_turu.drop('New_Price',axis=1)
+
+
+sns.set_style("darkgrid")
+for col in ['Transmission','Fuel_Type','Location','Owner_Type','Engine']:
+    degisken_turu.groupby(col).Price.mean().plot.bar()
+    plt.title(col)
+    plt.show()
+#görseli buraya yükleyemedim.
+
+    
+train_dt=degisken_turu.copy()
+train_dt.head()
+      Unnamed: 0	Name	   Location	   Year	Kilometers_Driven	Fuel_Type	Transmission	Owner_Type	Mileage	Engine	Power	 Seats	Price
+0            	0	  Maruti 	   Mumbai	   2010	            72000     	CNG	      Manual	     First	  26.6 	   998 	58.16 	 5.0	 1.75
+                  Wagon R                                                                           km/kg     CC    bhp
+                  LXI CNG
+1	            1	  Hyundai 	  Pune	   2015	            41000	    Diesel	    Manual	      First	  19.67    1582  126.2	 5.0	 12.50
+                  Creta 1.6                                                                          kmpl      CC   bhp
+                  CRDi SX 
+                  Option
+2	            2	  Honda 	   Chennai    2011	             46000	  Petrol	    Manual	      First	   18.2   1199  88.7   	5.0	  4.50
+                  Jazz V                                                                               kmpl     CC   bhp
+3	            3	  Maruti     Chennai    2012            	 87000	  Diesel	    Manual	      First	   20.77  1248  88.76	   7.0	 6.00
+                  Ertiga VDI                                                                            kmpl    CC    bhp
+4	            4 	Audi A4  	 Coimbatore	2013	              40670	   Diesel	   Automatic	    Second	 15.2    1968  140.8   5.0	 17.74
+                  New 2.0 TDI                                                                           kmpl	  CC    bhp
+                  Multitronic
+                  
+                  
+test_data.head()
+   Unnamed: 0	Name	   Location	   Year	Kilometers_Driven	Fuel_Type	Transmission	Owner_Type	Mileage	Engine	Power	 Seats	New_Price
+0	          0	Maruti    	Delhi	   2014	            40929     	CNG	      Manual	     First	  32.26   998  	 58.2 	4.0       	NaN
+              Alto K10                                                                          km/kg    CC     bhp
+              LXI CNG 
+1	          1	Maruti  	Coimbatore	2013	          54493   	Petrol	    Manual	    Second	   24.7  	 796  	47.3 	5.0	        NaN
+              Alto 800                                                                           kmpl     CC     bhp
+              2016-2019
+              LXI
+2         	2	Toyota  	   Mumbai	  2017	           34000	   Diesel	     Manual	      First  	 13.68 	 2393   147.8   7.0  25.27 Lakh
+              Innova                                                                              kmpl     CC     bhp
+              Crysta 
+              Touring 
+              Sport2.4 MT
+3         	3	Toyota  	Hyderabad  	2012	           139000	    Diesel	    Manual	    First	   23.59   1364 	  null 	5.0	        NaN
+              Etios                                                                               kmpl     CC      bhp
+              Liva GD
+4          	4	Hyundai    	Mumbai    2014              29000	    Petrol      Manual	    First	   18.5    1197   	82.85	5.0       	NaN
+              i20 Magna                                                                          kmpl     CC       bhp
+
+
+test_dt = test_data.copy()
+test_dt = test_dt.drop('New_Price',axis=1)
+
+
+print(test_data.shape)
+(1234, 13)
+
+
+plt.figure()
+sns.heatmap(test_data.isnull(),cbar=False,yticklabels=False)
+#görseli buraya yükleyemedim.
+
+
+son_dt=pd.concat([train_dt,test_dt],axis=0)
+son_dt.head()
+      Unnamed: 0	Name	   Location	   Year	Kilometers_Driven	Fuel_Type	Transmission	Owner_Type	Mileage	Engine	Power	 Seats	Price
+0            	0	  Maruti 	   Mumbai	   2010	            72000     	CNG	      Manual	     First	  26.6 	   998 	58.16 	 5.0	 1.75
+                  Wagon R                                                                           km/kg     CC    bhp
+                  LXI CNG
+1	            1	  Hyundai 	  Pune	   2015	            41000	    Diesel	    Manual	      First	  19.67    1582  126.2	 5.0	 12.50
+                  Creta 1.6                                                                          kmpl      CC   bhp
+                  CRDi SX 
+                  Option
+2	            2	  Honda 	   Chennai    2011	             46000	  Petrol	    Manual	      First	   18.2   1199  88.7   	5.0	  4.50
+                  Jazz V                                                                               kmpl     CC   bhp
+3	            3	  Maruti     Chennai    2012            	 87000	  Diesel	    Manual	      First	   20.77  1248  88.76	   7.0	 6.00
+                  Ertiga VDI                                                                            kmpl    CC    bhp
+4	            4 	Audi A4  	 Coimbatore	2013	              40670	   Diesel	   Automatic	    Second	 15.2    1968  140.8   5.0	 17.74
+                  New 2.0 TDI                                                                           kmpl	  CC    bhp
+                  Multitronic
+                  
+                  
+X=son_dt.iloc[:,:-1]
+X_train=X.iloc[:len(train_dt),:]
+X_test=X.iloc[len(train_dt):,:]
+
+
+train_data=pd.concat([X_train,train_dt['Price']],axis=1)
+train_data.head()
+     Unnamed: 0	   Name	   Location	   Year	Kilometers_Driven	Fuel_Type	Transmission	Owner_Type	Mileage	Engine	Power	 Seats	Price
+0            	0	  Maruti 	   Mumbai	   2010	            72000     	CNG	      Manual	     First	  26.6 	   998 	58.16 	 5.0	 1.75
+                  Wagon R                                                                           km/kg     CC    bhp
+                  LXI CNG
+1	            1	  Hyundai 	  Pune	   2015	            41000	    Diesel	    Manual	      First	  19.67    1582  126.2	 5.0	 12.50
+                  Creta 1.6                                                                          kmpl      CC   bhp
+                  CRDi SX 
+                  Option
+2	            2	  Honda 	   Chennai    2011	             46000	  Petrol	    Manual	      First	   18.2   1199  88.7   	5.0	  4.50
+                  Jazz V                                                                               kmpl     CC   bhp
+3	            3	  Maruti     Chennai    2012            	 87000	  Diesel	    Manual	      First	   20.77  1248  88.76	   7.0	 6.00
+                  Ertiga VDI                                                                            kmpl    CC    bhp
+4	            4 	Audi A4  	 Coimbatore	2013	              40670	   Diesel	   Automatic	    Second	 15.2    1968  140.8   5.0	 17.74
+                  New 2.0 TDI                                                                           kmpl	  CC    bhp
+                  Multitronic
+
+
+y_train=train_dt['Price'] 
+y_train_log=np.log(y_train)
+sns.distplot(y_train_log,kde=False)
+#görseli buraya yükleyemedim.
